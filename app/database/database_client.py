@@ -1,9 +1,15 @@
+from pymongo import MongoClient
+
+
 class DatabaseClient:
     def __init__(self):
-        # Database initialization logic
+        self.client = None
+
+    def connect(self):
+        if not self.client:
+            self.client = MongoClient('localhost', 27017)
+        return self.client
 
     def close(self):
-        # Database closing logic
-
-def get_db_client():
-    return DatabaseClient()
+        if self.client:
+            self.client.close()

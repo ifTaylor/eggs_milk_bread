@@ -1,17 +1,28 @@
 import logging
 import os
-from app import create_app
-from flask import request
+from flask import Flask
+from flask_cors import CORS
+from app.routes.books import books_bp
+from app.routes.ping import ping_bp
 import requests
 from config import Config
 
 logging.basicConfig(level=logging.INFO)
 
+app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+app.config.from_object(Config)
+app.secret_key = '1234'
+
+
+app.register_blueprint(books_bp)
+app.register_blueprint(ping_bp)
+
 
 def check_flask_is_running():
     ping_test_ip = 'http://localhost:5004/ping'
     try:
-        response = request.get(ping_test_ip, timeout=10)
+        response = requests.get(ping_test_ip, timeout=10)
         if response.status_code == 200:
             logging.info('Flask is already running on port 5002')
             return True
@@ -30,7 +41,6 @@ def initialize_logging():
 
 if __name__ == '__main__':
     if not check_flask_is_running():
-        app = create_app()
         initialize_logging()
 
         run_config = {
